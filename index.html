@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>试剂盒生产管理系统 </title>
+    <title>生产管理系统 - 飞书同步版</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -34,25 +34,6 @@
             color: #64748b;
             font-size: 14px;
         }
-        
-        .upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 8px 16px;
-            text-align: center;
-            background: #fafcff;
-            cursor: pointer;
-            transition: 0.2s;
-            min-width: 200px;
-        }
-        .upload-area:hover {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-        .upload-area .icon { font-size: 18px; margin-right: 6px; }
-        .upload-area .title { font-size: 12px; font-weight: 600; }
-        .upload-area .hint { font-size: 10px; color: #94a3b8; }
-        input[type="file"] { display: none; }
         
         .mode-tabs {
             display: flex;
@@ -276,10 +257,12 @@
             cursor: pointer;
             transition: all 0.2s ease;
             backdrop-filter: blur(5px);
+            border: 2px solid transparent;
         }
         .stat-card:hover {
             background: rgba(255,255,255,0.3);
             transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3);
         }
         .stat-card .stat-label {
             font-size: 12px;
@@ -299,7 +282,6 @@
         .in-stock { color: #10b981; }
         .low-stock-warning { color: #f59e0b; }
         .critical-stock { color: #ef4444; font-weight: bold; }
-        .out-stock { color: #94a3b8; }
         .zero-stock { color: #9ca3af; }
         
         .warning-row {
@@ -364,42 +346,24 @@
 <div class="container">
     <div class="header">
         <div class="title-section">
-            <h1>🏭 试剂盒生产管理系统</h1>
-            <div class="subtitle">包装规格 | 试剂标签 | 半成品库存管理</div>
-        </div>
-        
-        <div id="mode1Upload" class="upload-area" onclick="document.getElementById('excelFile1').click()">
-            <span class="icon">📦</span>
-            <span class="title">上传包装规格数据</span>
-            <input type="file" id="excelFile1" accept=".xlsx,.xls">
-        </div>
-        
-        <div id="mode2Upload" class="upload-area" style="display:none;" onclick="document.getElementById('excelFile2').click()">
-            <span class="icon">🏷️</span>
-            <span class="title">上传试剂标签数据</span>
-            <input type="file" id="excelFile2" accept=".xlsx,.xls">
-        </div>
-        
-        <div id="mode3Upload" class="upload-area" style="display:none;" onclick="document.getElementById('excelFile3').click()">
-            <span class="icon">📊</span>
-            <span class="title">上传半成品数据</span>
-            <input type="file" id="excelFile3" accept=".xlsx,.xls">
+            <h1>🏭 生产管理系统</h1>
+            <div class="subtitle">包装规格 | 试剂标签 | 半成品库存</div>
         </div>
     </div>
 
     <div class="mode-tabs">
-        <div class="mode-tab active" data-mode="packaging">📦 包装规格</div>
+  <div class="mode-tab active" data-mode="packaging">📦 包装规格</div>
         <div class="mode-tab" data-mode="reagent">🏷️ 试剂标签</div>
         <div class="mode-tab" data-mode="inventory">📊 半成品库存</div>
     </div>
 
-      <!-- 模式一数据卡片 -->
+    <!-- 模式一数据卡片 -->
     <div id="mode1DataCard" class="card">
         <div id="productCodeListArea" style="display: none;">
             <div class="flex-between"><strong>📋 已导入的货号：</strong><span style="font-size:11px;">点击快速查询</span></div>
             <div class="tag-list" id="productCodeList"></div>
         </div>
-        <div id="noMode1DataMsg" class="empty-state">📭 暂无成分数据，请点击右上角上传Excel文件</div>
+        <div id="noMode1DataMsg" class="empty-state">📭 暂无成分数据，请检查飞书表格数据</div>
     </div>
 
     <!-- 模式二数据卡片 -->
@@ -408,7 +372,7 @@
             <div class="flex-between"><strong>🏷️ 已导入的试剂标签：</strong><span style="font-size:11px;">点击快速查询</span></div>
             <div class="tag-list" id="tagNameList"></div>
         </div>
-        <div id="noMode2DataMsg" class="empty-state">📭 暂无试剂标签数据，请点击右上角上传Excel文件</div>
+        <div id="noMode2DataMsg" class="empty-state">📭 暂无试剂标签数据，请检查飞书表格数据</div>
     </div>
 
     <!-- 模式三数据卡片 -->
@@ -520,7 +484,7 @@
                     <input type="text" id="stockNote" placeholder="备注信息">
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-success" id="addStockBtn" style="margin-top:22px;">➕ 添加记录</button>
+                    <button class="btn btn-success" id="addStockBtn">➕ 添加记录</button>
                 </div>
             </div>
             
@@ -540,30 +504,41 @@
         </div>
     </div>
 
-    <div class="footer-note">💡 提示：库存按上传的规格表顺序排列。点击统计卡片可快速筛选。</div>
+    <div class="footer-note">💡 提示：所有数据从飞书实时读取。出入库记录将同步写入飞书，实现团队数据共享。</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-    // ==================== 数据存储 ====================
+    // ==================== 飞书配置 ====================
+    const FEISHU_CONFIG = {
+        appId: 'cli_aab0984a75bb9ccd',
+        appSecret: '9iG2l7HnZJF2yuMg1sR9yzkRx8Ql25Px',
+        sheetIds: {
+            tags: 'GciJsNf65hCczXtJMgDcPhN5nac',
+            packaging: 'ZiOrsmWw4hqkm0tq2fkcAEEhnEg',
+            specs: 'ZnxBsmimshh7UBtl0iUcyNalnEb'
+        },
+        stockSheetId: 'KJJ1shwHhh7aqLtvqDccJ6h5nAc'
+    };
+
+    // ==================== 全局数据 ====================
     let PRODUCT_DATA = {};
     let REAGENT_TAGS_DATA = {};
-    let REAGENT_SPEC_DATA = [];        // 规格表（保持上传顺序）
+    let REAGENT_SPEC_DATA = [];
     let INVENTORY_RECORDS = [];
     let CURRENT_STOCK = {};
-    let ALL_STOCK_ITEMS = {};
-    
+
     let currentMode = 'packaging';
     let nextRecordId = 1;
     let currentStockData = [];
     let currentFilter = 'all';
-    
+    let isDataLoaded = false;
+
     // ==================== 工具函数 ====================
-    function escapeHtml(str) { 
-        if (!str) return ''; 
-        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
-    
+
     function showStatus(msg, type) {
         const statusDiv = document.getElementById('status');
         if (statusDiv) statusDiv.remove();
@@ -574,7 +549,7 @@
         document.body.appendChild(newStatus);
         setTimeout(() => newStatus.remove(), 3000);
     }
-    
+
     function downloadCSV(rows, filename) {
         const csvContent = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
         const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -584,62 +559,206 @@
         link.click();
         URL.revokeObjectURL(link.href);
     }
-    
-    // ==================== 模式一：解析成分Excel ====================
-    function parseComponentExcel(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet);
-                
-                if (rows.length === 0) {
-                    showStatus('Excel文件为空', 'error');
-                    return;
-                }
-                
-                const newData = {};
-                let successCount = 0;
-                
-                rows.forEach((row, idx) => {
-                    const productCode = row['货号'] || row['product_code'] || row['ProductCode'] || row['编号'];
-                    const productName = row['产品名称'] || row['产品'] || row['product'] || '产品';
-                    const componentName = row['成分名称'] || row['成分'] || row['component'] || row['name'];
-                    const componentSpec = row['成分规格'] || row['规格'] || row['spec'] || '';
-                    let quantity = row['数量'] || row['用量'] || row['qty'] || '';
-                    let note = row['备注1'] || row['备注'] || row['note'] || row['Note'] || '';
-                    
-                    if (!productCode || !componentName) return;
-                    
-                    quantity = quantity ? String(quantity) : '—';
-                    note = note ? String(note) : '';
-                    
-                    if (!newData[productCode]) {
-                        newData[productCode] = { productName: productName, components: [] };
-                    }
-                    
-                    newData[productCode].components.push({
-                        name: String(componentName),
-                        spec: componentSpec ? String(componentSpec) : '—',
-                        quantity: quantity,
-                        note: note
-                    });
-                    successCount++;
-                });
-                
-                PRODUCT_DATA = newData;
-                updateMode1UI();
-                localStorage.setItem('componentData', JSON.stringify(PRODUCT_DATA));
-                showStatus(`✅ 成功导入 ${Object.keys(newData).length} 个货号，共 ${successCount} 条成分记录`, 'success');
-            } catch(err) {
-                showStatus('解析Excel失败：' + err.message, 'error');
-            }
-        };
-        reader.readAsArrayBuffer(file);
+
+    // ==================== 飞书API ====================
+    async function getFeishuToken() {
+        const response = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({
+                app_id: FEISHU_CONFIG.appId,
+                app_secret: FEISHU_CONFIG.appSecret
+            })
+        });
+        const data = await response.json();
+        if (data.code !== 0) {
+            throw new Error(`获取Token失败: ${data.msg}`);
+        }
+        return data.tenant_access_token;
     }
-    
+
+    async function readFeishuSheet(token, sheetId) {
+        const url = `https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/${sheetId}/values/`;
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.code !== 0) {
+            throw new Error(`读取表格失败: ${data.msg}`);
+        }
+        return data.data.valueRange.values || [];
+    }
+
+    async function appendToFeishuSheet(token, sheetId, values) {
+        const url = `https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/${sheetId}/values/append`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                valueRange: {
+                    range: 'A1',
+                    values: [values]
+                }
+            })
+        });
+        const data = await response.json();
+        if (data.code !== 0) {
+            throw new Error(`写入飞书失败: ${data.msg}`);
+        }
+        return data;
+    }
+
+    // ==================== 数据加载 ====================
+    async function loadAllData() {
+        try {
+            showStatus('正在从飞书加载数据...', 'info');
+            
+            const token = await getFeishuToken();
+            
+            const [tagsRows, packagingRows, specsRows] = await Promise.all([
+                readFeishuSheet(token, FEISHU_CONFIG.sheetIds.tags),
+                readFeishuSheet(token, FEISHU_CONFIG.sheetIds.packaging),
+                readFeishuSheet(token, FEISHU_CONFIG.sheetIds.specs)
+            ]);
+
+            parseTagsData(tagsRows);
+            parsePackagingData(packagingRows);
+            parseSpecsData(specsRows);
+            
+            updateMode1UI();
+            updateMode2UI();
+            updateMode3Selects();
+            refreshStockDisplay();
+            updateInventoryUI();
+            
+            isDataLoaded = true;
+            showStatus('✅ 所有数据加载成功！', 'success');
+        } catch (error) {
+            console.error('加载数据失败:', error);
+            showStatus('❌ 加载数据失败: ' + error.message, 'error');
+            loadFromLocalStorage();
+        }
+    }
+
+    function parseTagsData(rows) {
+        if (!rows || rows.length < 2) {
+            REAGENT_TAGS_DATA = {};
+            return;
+        }
+        const dataRows = rows.slice(1);
+        const newData = {};
+        dataRows.forEach(row => {
+            const tag = row[0] ? String(row[0]).trim() : '';
+            const name = row[1] ? String(row[1]).trim() : '';
+            const volume = row[2] ? String(row[2]).trim() : '—';
+            const storage = row[3] ? String(row[3]).trim() : '—';
+            const batchNo = row[4] ? String(row[4]).trim() : '—';
+            const note = row[5] ? String(row[5]).trim() : '—';
+            
+            if (!tag || !name) return;
+            if (!newData[tag]) newData[tag] = [];
+            newData[tag].push({ reagentName: name, volume, storage, batchNo, note });
+        });
+        REAGENT_TAGS_DATA = newData;
+    }
+
+    function parsePackagingData(rows) {
+        if (!rows || rows.length < 2) {
+            PRODUCT_DATA = {};
+            return;
+        }
+        const dataRows = rows.slice(1);
+        const newData = {};
+        dataRows.forEach(row => {
+            const code = row[0] ? String(row[0]).trim() : '';
+            const productName = row[1] ? String(row[1]).trim() : '产品';
+            const compName = row[2] ? String(row[2]).trim() : '';
+            const compSpec = row[3] ? String(row[3]).trim() : '—';
+            const qty = row[4] ? String(row[4]).trim() : '—';
+            const note = row[5] ? String(row[5]).trim() : '';
+            
+            if (!code || !compName) return;
+            if (!newData[code]) {
+                newData[code] = { productName, components: [] };
+            }
+            newData[code].components.push({
+                name: compName,
+                spec: compSpec,
+                quantity: qty,
+                note: note
+            });
+        });
+        PRODUCT_DATA = newData;
+    }
+
+    function parseSpecsData(rows) {
+        if (!rows || rows.length < 2) {
+            REAGENT_SPEC_DATA = [];
+            return;
+        }
+        const dataRows = rows.slice(1);
+        const newData = [];
+        dataRows.forEach((row, index) => {
+            const name = row[0] ? String(row[0]).trim() : '';
+            const spec = row[1] ? String(row[1]).trim() : '';
+            const unit = row[2] ? String(row[2]).trim() : '个';
+            if (name && spec) {
+                newData.push({
+                    reagentName: name,
+                    reagentSpec: spec,
+                    unit: unit,
+                    _index: index
+                });
+            }
+        });
+        REAGENT_SPEC_DATA = newData;
+    }
+
+    // ==================== 从飞书加载库存历史 ====================
+    async function loadStockHistoryFromFeishu() {
+        try {
+            const token = await getFeishuToken();
+            const rows = await readFeishuSheet(token, FEISHU_CONFIG.stockSheetId);
+            if (!rows || rows.length < 2) {
+                console.log('飞书中暂无历史记录');
+                return;
+            }
+            
+            const dataRows = rows.slice(1);
+            const records = [];
+            dataRows.forEach((row, index) => {
+                if (!row || row.length < 8) return;
+                records.push({
+                    id: 1000 + index,
+                    date: row[0] || '',
+                    reagentName: row[1] || '',
+                    reagentSpec: row[2] || '',
+                    batchNo: row[3] || '',
+                    type: row[4] || '',
+                    qty: parseInt(row[5]) || 0,
+                    unit: row[6] || '个',
+                    note: row[7] || '',
+                    balance: 0
+                });
+            });
+
+            if (records.length > 0) {
+                INVENTORY_RECORDS = records;
+                recalculateStock();
+                updateInventoryUI();
+                refreshStockDisplay();
+                updateBatchSelect();
+                showStatus(`已从飞书同步 ${records.length} 条历史记录`, 'success');
+            }
+        } catch (error) {
+            console.warn('从飞书加载历史记录失败，使用本地缓存:', error);
+        }
+    }
+
+    // ==================== 模式一 ====================
     function searchProductCode() {
         const code = document.getElementById('productCodeInput').value.trim();
         const resultArea = document.getElementById('resultArea1');
@@ -687,7 +806,7 @@
         html += `<div style="margin-top:12px; font-size:12px; color:#64748b;">共 ${components.length} 种成分</div>`;
         resultArea.innerHTML = html;
     }
-    
+
     function exportProductCode() {
         const code = document.getElementById('productCodeInput').value.trim();
         const product = PRODUCT_DATA[code];
@@ -703,7 +822,7 @@
         downloadCSV(csv, `${code}_成分清单.csv`);
         showStatus(`已导出 ${code}`, 'success');
     }
-    
+
     function updateMode1UI() {
         const codes = Object.keys(PRODUCT_DATA);
         const area = document.getElementById('productCodeListArea');
@@ -719,48 +838,8 @@
             listDiv.innerHTML = codes.map(c => `<span class="tag" onclick="document.getElementById('productCodeInput').value='${c}'; searchProductCode();">${escapeHtml(c)}</span>`).join(''); 
         }
     }
-    
-    // ==================== 模式二：解析试剂标签Excel ====================
-    function parseReagentTagExcel(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet);
-                const newData = {};
-                rows.forEach(row => {
-                    const reagentTag = row['试剂标签'] || row['标签'] || row['tag'];
-                    const reagentName = row['试剂名称'] || '';
-                    const volume = row['体积'] || '';
-                    const storage = row['存储条件'] || '';
-                    const batchNo = row['批次号'] || '';
-                    const note = row['Note'] || '';
-                    if (!reagentTag || !reagentName) return;
-                    if (!newData[reagentTag]) newData[reagentTag] = [];
-                    newData[reagentTag].push({ reagentName, volume: volume || '—', storage: storage || '—', batchNo: batchNo || '—', note: note || '—' });
-                });
-                REAGENT_TAGS_DATA = newData;
-                updateMode2UI();
-                localStorage.setItem('reagentTagData', JSON.stringify(REAGENT_TAGS_DATA));
-                showStatus(`✅ 导入 ${Object.keys(newData).length} 个试剂标签`, 'success');
-            } catch(err) {
-                showStatus('解析Excel失败：' + err.message, 'error');
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-    
-    function updateMode2UI() {
-        const tags = Object.keys(REAGENT_TAGS_DATA).sort();
-        const area = document.getElementById('tagListArea');
-        const listDiv = document.getElementById('tagNameList');
-        const noDataMsg = document.getElementById('noMode2DataMsg');
-        if (tags.length === 0) { area.style.display = 'none'; noDataMsg.style.display = 'block'; }
-        else { area.style.display = 'block'; noDataMsg.style.display = 'none'; listDiv.innerHTML = tags.map(t => `<span class="tag" onclick="document.getElementById('tagNameInput').value='${t}'; searchTag();">${escapeHtml(t)}</span>`).join(''); }
-    }
-    
+
+    // ==================== 模式二 ====================
     function searchTag() {
         const tag = document.getElementById('tagNameInput').value.trim();
         const resultArea = document.getElementById('resultArea2');
@@ -775,7 +854,7 @@
         html += `</tbody></table><div>共 ${reagents.length} 条试剂记录</div>`;
         resultArea.innerHTML = html;
     }
-    
+
     function exportTag() {
         const tag = document.getElementById('tagNameInput').value.trim();
         const reagents = REAGENT_TAGS_DATA[tag];
@@ -785,101 +864,17 @@
         downloadCSV(csv, `${tag}_试剂清单.csv`);
         showStatus(`已导出 ${tag}`, 'success');
     }
-    
-    // ==================== 模式三：解析试剂规格Excel（保持顺序） ====================
-    function parseReagentSpecExcel(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet);
-                
-                if (rows.length === 0) {
-                    showStatus('Excel文件为空', 'error');
-                    return;
-                }
-                
-                const newData = [];
-                rows.forEach((row, idx) => {
-                    const reagentName = row['试剂名称'] || row['name'] || row['Name'];
-                    const reagentSpec = row['试剂规格'] || row['规格'] || row['spec'];
-                    const unit = row['单位'] || row['unit'] || '';
-                    
-                    if (!reagentName || !reagentSpec) return;
-                    
-                    newData.push({
-                        reagentName: String(reagentName),
-                        reagentSpec: String(reagentSpec),
-                        unit: unit || '个',
-                        _index: idx  // 保存原始顺序
-                    });
-                });
-                
-                REAGENT_SPEC_DATA = newData;
-                rebuildAllStockItems();
-                updateMode3Selects();
-                localStorage.setItem('reagentSpecData', JSON.stringify(REAGENT_SPEC_DATA));
-                showStatus(`✅ 成功导入 ${newData.length} 条试剂规格记录`, 'success');
-            } catch(err) {
-                showStatus('解析Excel失败：' + err.message, 'error');
-            }
-        };
-        reader.readAsArrayBuffer(file);
+
+    function updateMode2UI() {
+        const tags = Object.keys(REAGENT_TAGS_DATA).sort();
+        const area = document.getElementById('tagListArea');
+        const listDiv = document.getElementById('tagNameList');
+        const noDataMsg = document.getElementById('noMode2DataMsg');
+        if (tags.length === 0) { area.style.display = 'none'; noDataMsg.style.display = 'block'; }
+        else { area.style.display = 'block'; noDataMsg.style.display = 'none'; listDiv.innerHTML = tags.map(t => `<span class="tag" onclick="document.getElementById('tagNameInput').value='${t}'; searchTag();">${escapeHtml(t)}</span>`).join(''); }
     }
-    
-    function rebuildAllStockItems() {
-        ALL_STOCK_ITEMS = {};
-        REAGENT_SPEC_DATA.forEach(spec => {
-            const key = `${spec.reagentName}|${spec.reagentSpec}`;
-            if (!ALL_STOCK_ITEMS[key]) {
-                ALL_STOCK_ITEMS[key] = {
-                    reagentName: spec.reagentName,
-                    reagentSpec: spec.reagentSpec,
-                    unit: spec.unit,
-                    totalQuantity: 0,
-                    batches: [],
-                    _order: spec._index || 0
-                };
-            }
-        });
-        updateTotalStockQuantity();
-    }
-    
-    function updateTotalStockQuantity() {
-        // 重置
-        for (let key in ALL_STOCK_ITEMS) {
-            ALL_STOCK_ITEMS[key].totalQuantity = 0;
-            ALL_STOCK_ITEMS[key].batches = [];
-        }
-        
-        // 汇总
-        for (let stockKey in CURRENT_STOCK) {
-            const stock = CURRENT_STOCK[stockKey];
-            const itemKey = `${stock.reagentName}|${stock.reagentSpec}`;
-            if (ALL_STOCK_ITEMS[itemKey]) {
-                ALL_STOCK_ITEMS[itemKey].totalQuantity += stock.quantity;
-                ALL_STOCK_ITEMS[itemKey].batches.push({
-                    batchNo: stock.batchNo,
-                    quantity: stock.quantity
-                });
-            } else {
-                // 如果规格清单中没有，动态添加（放在最后）
-                if (!ALL_STOCK_ITEMS[itemKey]) {
-                    ALL_STOCK_ITEMS[itemKey] = {
-                        reagentName: stock.reagentName,
-                        reagentSpec: stock.reagentSpec,
-                        unit: stock.unit,
-                        totalQuantity: stock.quantity,
-                        batches: [{ batchNo: stock.batchNo, quantity: stock.quantity }],
-                        _order: 99999  // 动态添加的放在最后
-                    };
-                }
-            }
-        }
-    }
-    
+
+    // ==================== 模式三：库存管理 ====================
     function updateMode3Selects() {
         const hasData = REAGENT_SPEC_DATA.length > 0;
         
@@ -900,11 +895,11 @@
         updateInventoryUI();
         refreshStockDisplay();
     }
-    
+
     function getSpecsByReagentName(reagentName) {
         return REAGENT_SPEC_DATA.filter(r => r.reagentName === reagentName);
     }
-    
+
     function updateSpecSelect(reagentName) {
         const specSelect = document.getElementById('stockReagentSpec');
         if (!reagentName) {
@@ -916,7 +911,6 @@
             specSelect.innerHTML = '<option value="">无规格数据</option>';
             return;
         }
-        // 按原始顺序排列
         specs.sort((a, b) => (a._index || 0) - (b._index || 0));
         let options = '';
         specs.forEach(spec => {
@@ -926,7 +920,7 @@
         
         updateBatchFieldByType();
     }
-    
+
     function updateBatchFieldByType() {
         const type = document.getElementById('stockType').value;
         const reagentName = document.getElementById('stockReagentName').value;
@@ -952,7 +946,7 @@
             stockInfo.style.display = 'none';
         }
     }
-    
+
     function updateBatchSelect() {
         const reagentName = document.getElementById('stockReagentName').value;
         const reagentSpec = document.getElementById('stockReagentSpec').value;
@@ -987,7 +981,7 @@
             batchSelect.innerHTML = options;
         }
     }
-    
+
     function showSelectedBatchStock() {
         const batchSelect = document.getElementById('stockBatchSelect');
         const selectedOption = batchSelect.options[batchSelect.selectedIndex];
@@ -1008,8 +1002,8 @@
             document.getElementById('currentStockInfo').style.display = 'none';
         }
     }
-    
-    // ==================== 库存管理函数 ====================
+
+    // ==================== 库存数据管理 ====================
     function initInventory() {
         const savedRecords = localStorage.getItem('inventoryRecords');
         if (savedRecords) {
@@ -1023,7 +1017,7 @@
         }
         updateInventoryUI();
     }
-    
+
     function recalculateStock() {
         CURRENT_STOCK = {};
         for (let record of INVENTORY_RECORDS) {
@@ -1044,15 +1038,15 @@
             }
             record.balance = CURRENT_STOCK[key].quantity;
         }
-        updateTotalStockQuantity();
         saveInventory();
     }
-    
+
     function saveInventory() {
         localStorage.setItem('inventoryRecords', JSON.stringify(INVENTORY_RECORDS));
     }
-    
-    function addStockRecord() {
+
+    // ==================== 添加记录 ====================
+    async function addStockRecord() {
         const type = document.getElementById('stockType').value;
         const reagentName = document.getElementById('stockReagentName').value;
         const reagentSpec = document.getElementById('stockReagentSpec').value;
@@ -1074,15 +1068,15 @@
                 return;
             }
         }
-        
-        if (!reagentName) { showStatus('请选择试剂名称', 'error'); return; }
-        if (!reagentSpec) { showStatus('请选择试剂规格', 'error'); return; }
-        if (!date) { showStatus('请选择日期', 'error'); return; }
-        if (isNaN(qty) || qty <= 0) { showStatus('请输入有效的数量', 'error'); return; }
-        
+
+        if (!reagentName || !reagentSpec || !date || isNaN(qty) || qty <= 0) {
+            showStatus('请完善所有必填项', 'error');
+            return;
+        }
+
         const specOption = Array.from(document.getElementById('stockReagentSpec').options).find(opt => opt.value === reagentSpec);
         const unit = specOption ? specOption.dataset.unit : '个';
-        
+
         if (type === 'out') {
             const key = `${reagentName}|${reagentSpec}|${batchNo}`;
             const currentQty = CURRENT_STOCK[key] ? CURRENT_STOCK[key].quantity : 0;
@@ -1091,16 +1085,40 @@
                 return;
             }
         }
-        
+
+        // 1. 先写入飞书
+        let feishuSuccess = false;
+        try {
+            const token = await getFeishuToken();
+            const rowData = [
+                date,
+                reagentName,
+                reagentSpec,
+                batchNo,
+                type,
+                qty,
+                unit,
+                note || '',
+                ''
+            ];
+            await appendToFeishuSheet(token, FEISHU_CONFIG.stockSheetId, rowData);
+            feishuSuccess = true;
+            showStatus('数据已同步到飞书', 'info');
+        } catch (error) {
+            console.error('飞书写入失败:', error);
+            showStatus('⚠️ 飞书写入失败，但本地已保存', 'error');
+        }
+
+        // 2. 本地保存记录
         const record = {
             id: nextRecordId++,
-            reagentName: reagentName,
-            reagentSpec: reagentSpec,
-            batchNo: batchNo,
-            date: date,
-            type: type,
-            qty: qty,
-            unit: unit,
+            reagentName,
+            reagentSpec,
+            batchNo,
+            date,
+            type,
+            qty,
+            unit,
             note: note || '',
             balance: 0
         };
@@ -1118,76 +1136,108 @@
         updateBatchSelect();
         showSelectedBatchStock();
         
-        showStatus(`${type === 'in' ? '入库' : '出库'}成功！`, 'success');
+        showStatus(`${type === 'in' ? '入库' : '出库'}成功！${feishuSuccess ? ' (已同步飞书)' : ' (仅本地保存)'}`, 'success');
     }
-    
-    // 按上传顺序获取库存列表
-    function getStocksInOriginalOrder(filterType) {
-        let result = [];
-        
-        for (let key in ALL_STOCK_ITEMS) {
-            const stock = ALL_STOCK_ITEMS[key];
-            const qty = stock.totalQuantity;
-            
-            let include = false;
-            if (filterType === 'all') {
-                include = true;
-            } else if (filterType === 'low') {
-                include = (qty < 6 && qty > 0);
-            } else if (filterType === 'critical') {
-                include = (qty < 3 && qty > 0);
-            } else if (filterType === 'zero') {
-                include = (qty === 0);
-            }
-            
-            if (include) {
-                result.push({
-                    reagentName: stock.reagentName,
-                    reagentSpec: stock.reagentSpec,
-                    totalQuantity: stock.totalQuantity,
-                    unit: stock.unit,
-                    batches: stock.batches,
-                    _order: stock._order || 0
-                });
-            }
-        }
-        
-        // 按原始顺序排列
-        result.sort((a, b) => a._order - b._order);
-        return result;
-    }
-    
+
+    // ==================== 库存显示 ====================
     function refreshStockDisplay() {
         const reagentName = document.getElementById('queryReagentName').value;
         const reagentSpec = document.getElementById('queryReagentSpec').value;
         
-        let matchedStocks = [];
-        for (let key in ALL_STOCK_ITEMS) {
-            const stock = ALL_STOCK_ITEMS[key];
-            if (reagentName && stock.reagentName !== reagentName) continue;
-            if (reagentSpec && stock.reagentSpec !== reagentSpec) continue;
-            matchedStocks.push({
-                reagentName: stock.reagentName,
-                reagentSpec: stock.reagentSpec,
-                totalQuantity: stock.totalQuantity,
-                unit: stock.unit,
-                batches: stock.batches,
-                _order: stock._order || 0
-            });
+        let allItems = {};
+        REAGENT_SPEC_DATA.forEach(spec => {
+            const key = `${spec.reagentName}|${spec.reagentSpec}`;
+            if (!allItems[key]) {
+                allItems[key] = {
+                    reagentName: spec.reagentName,
+                    reagentSpec: spec.reagentSpec,
+                    unit: spec.unit,
+                    totalQuantity: 0,
+                    batches: [],
+                    _order: spec._index || 0
+                };
+            }
+        });
+        
+        for (let key in CURRENT_STOCK) {
+            const stock = CURRENT_STOCK[key];
+            const itemKey = `${stock.reagentName}|${stock.reagentSpec}`;
+            if (allItems[itemKey]) {
+                allItems[itemKey].totalQuantity += stock.quantity;
+                allItems[itemKey].batches.push({
+                    batchNo: stock.batchNo,
+                    quantity: stock.quantity
+                });
+            } else {
+                if (!allItems[itemKey]) {
+                    allItems[itemKey] = {
+                        reagentName: stock.reagentName,
+                        reagentSpec: stock.reagentSpec,
+                        unit: stock.unit,
+                        totalQuantity: stock.quantity,
+                        batches: [{ batchNo: stock.batchNo, quantity: stock.quantity }],
+                        _order: 99999
+                    };
+                }
+            }
         }
         
-        // 按原始顺序排列
+        let matchedStocks = [];
+        for (let key in allItems) {
+            const stock = allItems[key];
+            if (reagentName && stock.reagentName !== reagentName) continue;
+            if (reagentSpec && stock.reagentSpec !== reagentSpec) continue;
+            matchedStocks.push(stock);
+        }
+        
         matchedStocks.sort((a, b) => a._order - b._order);
         currentStockData = matchedStocks;
         renderStockTable(matchedStocks);
     }
-    
+
+    function getStocksByFilter(filterType) {
+        let allItems = {};
+        REAGENT_SPEC_DATA.forEach(spec => {
+            const key = `${spec.reagentName}|${spec.reagentSpec}`;
+            if (!allItems[key]) {
+                allItems[key] = {
+                    reagentName: spec.reagentName,
+                    reagentSpec: spec.reagentSpec,
+                    unit: spec.unit,
+                    totalQuantity: 0,
+                    batches: [],
+                    _order: spec._index || 0
+                };
+            }
+        });
+        for (let key in CURRENT_STOCK) {
+            const stock = CURRENT_STOCK[key];
+            const itemKey = `${stock.reagentName}|${stock.reagentSpec}`;
+            if (allItems[itemKey]) {
+                allItems[itemKey].totalQuantity += stock.quantity;
+                allItems[itemKey].batches.push({ batchNo: stock.batchNo, quantity: stock.quantity });
+            }
+        }
+        
+        let stocks = [];
+        for (let key in allItems) {
+            const stock = allItems[key];
+            const qty = stock.totalQuantity;
+            if (filterType === 'all') stocks.push(stock);
+            else if (filterType === 'low' && qty < 6 && qty > 0) stocks.push(stock);
+            else if (filterType === 'critical' && qty < 3 && qty > 0) stocks.push(stock);
+            else if (filterType === 'zero' && qty === 0) stocks.push(stock);
+        }
+        stocks.sort((a, b) => a._order - b._order);
+        return stocks;
+    }
+
     function filterByStockType(filterType, filterName) {
         document.getElementById('queryReagentName').value = '';
         const specSelect = document.getElementById('queryReagentSpec');
         specSelect.innerHTML = '<option value="">所有规格</option>';
         
-        let stocks = getStocksInOriginalOrder(filterType);
+        let stocks = getStocksByFilter(filterType);
         currentStockData = stocks;
         
         if (filterType === 'all') {
@@ -1207,11 +1257,11 @@
         renderStockTable(stocks);
         showStatus(`已筛选：${filterName}，共 ${stocks.length} 项`, 'success');
     }
-    
+
     function viewAllStock() {
         filterByStockType('all', '全部库存');
     }
-    
+
     function renderStockTable(matchedStocks) {
         if (matchedStocks.length === 0) {
             document.getElementById('stockQueryResult').innerHTML = '<div class="empty-state">📭 未找到符合条件的库存记录</div>';
@@ -1325,23 +1375,17 @@
             newExportBtn.addEventListener('click', () => exportStockData(displayStocks));
         }
     }
-    
+
     function exportStockData(stocksToExport = null) {
         let exportStocks = stocksToExport;
         if (!exportStocks) {
-            exportStocks = [];
-            for (let key in ALL_STOCK_ITEMS) {
-                exportStocks.push(ALL_STOCK_ITEMS[key]);
-            }
+            exportStocks = getStocksByFilter('all');
         }
         
         if (exportStocks.length === 0) {
             showStatus('暂无库存数据可导出', 'error');
             return;
         }
-        
-        // 按原始顺序排列
-        exportStocks.sort((a, b) => (a._order || 0) - (b._order || 0));
         
         let csv = [['试剂名称', '试剂规格', '当前总库存', '单位', '状态', '批次明细']];
         exportStocks.forEach(stock => {
@@ -1367,27 +1411,27 @@
         downloadCSV(csv, filename);
         showStatus('导出成功', 'success');
     }
-    
+
     function queryStock() {
         refreshStockDisplay();
     }
-    
+
     function filterLowStock() {
         filterByStockType('low', '余量不足（<6）');
     }
-    
+
     function filterCriticalStock() {
         filterByStockType('critical', '紧急补货（<3）');
     }
-    
+
     function filterZeroStock() {
         filterByStockType('zero', '零库存');
     }
-    
+
     function showAllStock() {
         filterByStockType('all', '全部库存');
     }
-    
+
     function updateFilterButtons(activeFilter) {
         const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
         const lowBtn = document.querySelector('.filter-btn[data-filter="low"]');
@@ -1404,7 +1448,7 @@
         else if (activeFilter === 'critical' && criticalBtn) criticalBtn.classList.add('critical-active');
         else if (activeFilter === 'zero' && zeroBtn) zeroBtn.classList.add('active');
     }
-    
+
     function updateInventoryUI() {
         const summaryDiv = document.getElementById('inventorySummary');
         
@@ -1412,11 +1456,33 @@
         let lowStockCount = 0;
         let criticalCount = 0;
         let zeroCount = 0;
-        let totalItems = 0;
+        let totalItems = REAGENT_SPEC_DATA.length;
         
-        for (let key in ALL_STOCK_ITEMS) {
-            const qty = ALL_STOCK_ITEMS[key].totalQuantity;
-            totalItems++;
+        let allItems = {};
+        REAGENT_SPEC_DATA.forEach(spec => {
+            const key = `${spec.reagentName}|${spec.reagentSpec}`;
+            if (!allItems[key]) {
+                allItems[key] = {
+                    reagentName: spec.reagentName,
+                    reagentSpec: spec.reagentSpec,
+                    unit: spec.unit,
+                    totalQuantity: 0,
+                    batches: [],
+                    _order: spec._index || 0
+                };
+            }
+        });
+        for (let key in CURRENT_STOCK) {
+            const stock = CURRENT_STOCK[key];
+            const itemKey = `${stock.reagentName}|${stock.reagentSpec}`;
+            if (allItems[itemKey]) {
+                allItems[itemKey].totalQuantity += stock.quantity;
+                allItems[itemKey].batches.push({ batchNo: stock.batchNo, quantity: stock.quantity });
+            }
+        }
+        
+        for (let key in allItems) {
+            const qty = allItems[key].totalQuantity;
             totalQty += qty;
             if (qty > 0 && qty < 6) lowStockCount++;
             if (qty > 0 && qty < 3) criticalCount++;
@@ -1457,7 +1523,6 @@
             `;
             
             document.querySelectorAll('.stat-card').forEach(card => {
-                // 移除旧事件避免重复绑定
                 const newCard = card.cloneNode(true);
                 card.parentNode.replaceChild(newCard, card);
                 newCard.addEventListener('click', (e) => {
@@ -1514,7 +1579,7 @@
             historyArea.innerHTML = html;
         }
     }
-    
+
     function deleteRecord(id) {
         if (confirm('确定要删除这条记录吗？删除后库存会重新计算。')) {
             INVENTORY_RECORDS = INVENTORY_RECORDS.filter(r => r.id !== id);
@@ -1525,7 +1590,7 @@
             showStatus('记录已删除', 'success');
         }
     }
-    
+
     function exportHistory() {
         if (INVENTORY_RECORDS.length === 0) {
             showStatus('暂无历史记录可导出', 'error');
@@ -1538,7 +1603,7 @@
         downloadCSV(csv, `库存历史记录_${new Date().toISOString().slice(0,10)}.csv`);
         showStatus('导出成功', 'success');
     }
-    
+
     function clearStock() {
         document.getElementById('queryReagentName').value = '';
         const specSelect = document.getElementById('queryReagentSpec');
@@ -1547,18 +1612,35 @@
         updateFilterButtons('all');
         refreshStockDisplay();
     }
-    
+
+    // ==================== 本地缓存 ====================
+    function loadFromLocalStorage() {
+        const savedComponent = localStorage.getItem('componentData');
+        if (savedComponent) { try { PRODUCT_DATA = JSON.parse(savedComponent); updateMode1UI(); } catch(e) {} }
+        const savedReagent = localStorage.getItem('reagentTagData');
+        if (savedReagent) { try { REAGENT_TAGS_DATA = JSON.parse(savedReagent); updateMode2UI(); } catch(e) {} }
+        const savedSpec = localStorage.getItem('reagentSpecData');
+        if (savedSpec) { 
+            try { 
+                const parsed = JSON.parse(savedSpec);
+                REAGENT_SPEC_DATA = parsed.map((item, idx) => ({ ...item, _index: item._index !== undefined ? item._index : idx }));
+                updateMode3Selects(); 
+            } catch(e) {} 
+        }
+        initInventory();
+    }
+
     // ==================== 模式切换 ====================
     function clearMode1() { 
         document.getElementById('productCodeInput').value = ''; 
         document.getElementById('resultArea1').innerHTML = '<div class="empty-state">📦 等待输入货号...</div>'; 
     }
-    
+
     function clearMode2() { 
         document.getElementById('tagNameInput').value = ''; 
         document.getElementById('resultArea2').innerHTML = '<div class="empty-state">🏷️ 请输入试剂标签...</div>'; 
     }
-    
+
     function switchMode(mode) {
         currentMode = mode;
         document.getElementById('mode1Card').style.display = mode === 'packaging' ? 'block' : 'none';
@@ -1567,9 +1649,6 @@
         document.getElementById('mode1DataCard').style.display = mode === 'packaging' ? 'block' : 'none';
         document.getElementById('mode2DataCard').style.display = mode === 'reagent' ? 'block' : 'none';
         document.getElementById('mode3DataCard').style.display = mode === 'inventory' ? 'block' : 'none';
-        document.getElementById('mode1Upload').style.display = mode === 'packaging' ? 'block' : 'none';
-        document.getElementById('mode2Upload').style.display = mode === 'reagent' ? 'block' : 'none';
-        document.getElementById('mode3Upload').style.display = mode === 'inventory' ? 'block' : 'none';
         document.querySelectorAll('.mode-tab').forEach((tab, i) => {
             if ((mode === 'packaging' && i === 0) || (mode === 'reagent' && i === 1) || (mode === 'inventory' && i === 2)) tab.classList.add('active');
             else tab.classList.remove('active');
@@ -1579,86 +1658,52 @@
             updateInventoryUI(); 
         }
     }
-    
-    function loadFromStorage() {
-        const savedComponent = localStorage.getItem('componentData');
-        if (savedComponent) { try { PRODUCT_DATA = JSON.parse(savedComponent); updateMode1UI(); } catch(e) {} }
-        const savedReagent = localStorage.getItem('reagentTagData');
-        if (savedReagent) { try { REAGENT_TAGS_DATA = JSON.parse(savedReagent); updateMode2UI(); } catch(e) {} }
-        const savedSpec = localStorage.getItem('reagentSpecData');
-        if (savedSpec) { 
-            try { 
-                const parsed = JSON.parse(savedSpec);
-                // 恢复_index
-                REAGENT_SPEC_DATA = parsed.map((item, idx) => ({ ...item, _index: item._index !== undefined ? item._index : idx }));
-                rebuildAllStockItems(); 
-                updateMode3Selects(); 
-            } catch(e) {} 
-        }
-        initInventory();
-    }
-    
-    // ==================== 事件绑定 ====================
-    document.getElementById('excelFile1').addEventListener('change', e => { if (e.target.files.length) parseComponentExcel(e.target.files[0]); });
-    document.getElementById('excelFile2').addEventListener('change', e => { if (e.target.files.length) parseReagentTagExcel(e.target.files[0]); });
-    document.getElementById('excelFile3').addEventListener('change', e => { if (e.target.files.length) parseReagentSpecExcel(e.target.files[0]); });
-    document.getElementById('searchBtn').addEventListener('click', searchProductCode);
-    document.getElementById('clearBtn1').addEventListener('click', clearMode1);
-    document.getElementById('exportBtn1').addEventListener('click', exportProductCode);
-    document.getElementById('searchBtn2').addEventListener('click', searchTag);
-    document.getElementById('clearBtn2').addEventListener('click', clearMode2);
-    document.getElementById('exportBtn2').addEventListener('click', exportTag);
-    document.getElementById('addStockBtn').addEventListener('click', addStockRecord);
-    document.getElementById('queryStockBtn').addEventListener('click', queryStock);
-    document.getElementById('clearStockBtn').addEventListener('click', clearStock);
-    document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
-    document.getElementById('exportStockBtn').addEventListener('click', () => exportStockData());
-    document.getElementById('viewAllStockBtn').addEventListener('click', viewAllStock);
-    document.getElementById('stockReagentName').addEventListener('change', e => updateSpecSelect(e.target.value));
-    document.getElementById('stockReagentSpec').addEventListener('change', () => {
-        updateBatchSelect();
-        if (document.getElementById('stockType').value === 'out') {
-            showSelectedBatchStock();
-        }
-    });
-    document.getElementById('stockType').addEventListener('change', updateBatchFieldByType);
-    document.getElementById('stockBatchSelect').addEventListener('change', showSelectedBatchStock);
-    
-    // 筛选按钮事件
-    const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
-    const lowBtn = document.querySelector('.filter-btn[data-filter="low"]');
-    const criticalBtn = document.querySelector('.filter-btn[data-filter="critical"]');
-    const zeroBtn = document.querySelector('.filter-btn[data-filter="zero"]');
-    if (allBtn) allBtn.addEventListener('click', showAllStock);
-    if (lowBtn) lowBtn.addEventListener('click', filterLowStock);
-    if (criticalBtn) criticalBtn.addEventListener('click', filterCriticalStock);
-    if (zeroBtn) zeroBtn.addEventListener('click', filterZeroStock);
-    
-    document.getElementById('productCodeInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchProductCode(); });
-    document.getElementById('tagNameInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchTag(); });
-    document.querySelectorAll('.mode-tab').forEach(tab => { tab.addEventListener('click', () => switchMode(tab.dataset.mode)); });
-    
-    document.getElementById('stockDate').value = new Date().toISOString().slice(0,10);
-    
-    // 拖拽上传
-    function setupDragDrop(elementId, parseFunc) {
-        const area = document.getElementById(elementId);
-        if (!area) return;
-        area.addEventListener('dragover', e => { e.preventDefault(); area.style.borderColor = '#3b82f6'; });
-        area.addEventListener('dragleave', () => { area.style.borderColor = '#cbd5e1'; });
-        area.addEventListener('drop', e => {
-            e.preventDefault();
-            area.style.borderColor = '#cbd5e1';
-            const file = e.dataTransfer.files[0];
-            if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) parseFunc(file);
-            else showStatus('请拖入Excel文件', 'error');
+
+    // ==================== 页面初始化 ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('stockDate').value = new Date().toISOString().slice(0,10);
+        
+        document.getElementById('searchBtn').addEventListener('click', searchProductCode);
+        document.getElementById('clearBtn1').addEventListener('click', clearMode1);
+        document.getElementById('exportBtn1').addEventListener('click', exportProductCode);
+        document.getElementById('searchBtn2').addEventListener('click', searchTag);
+        document.getElementById('clearBtn2').addEventListener('click', clearMode2);
+        document.getElementById('exportBtn2').addEventListener('click', exportTag);
+        document.getElementById('addStockBtn').addEventListener('click', addStockRecord);
+        document.getElementById('queryStockBtn').addEventListener('click', queryStock);
+        document.getElementById('clearStockBtn').addEventListener('click', clearStock);
+        document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+        document.getElementById('exportStockBtn').addEventListener('click', () => exportStockData());
+        document.getElementById('viewAllStockBtn').addEventListener('click', viewAllStock);
+        document.getElementById('stockReagentName').addEventListener('change', e => updateSpecSelect(e.target.value));
+        document.getElementById('stockReagentSpec').addEventListener('change', () => {
+            updateBatchSelect();
+            if (document.getElementById('stockType').value === 'out') {
+                showSelectedBatchStock();
+            }
         });
-    }
-    setupDragDrop('mode1Upload', parseComponentExcel);
-    setupDragDrop('mode2Upload', parseReagentTagExcel);
-    setupDragDrop('mode3Upload', parseReagentSpecExcel);
-    
-    loadFromStorage();
+        document.getElementById('stockType').addEventListener('change', updateBatchFieldByType);
+        document.getElementById('stockBatchSelect').addEventListener('change', showSelectedBatchStock);
+        
+        const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+        const lowBtn = document.querySelector('.filter-btn[data-filter="low"]');
+        const criticalBtn = document.querySelector('.filter-btn[data-filter="critical"]');
+        const zeroBtn = document.querySelector('.filter-btn[data-filter="zero"]');
+        if (allBtn) allBtn.addEventListener('click', showAllStock);
+        if (lowBtn) lowBtn.addEventListener('click', filterLowStock);
+        if (criticalBtn) criticalBtn.addEventListener('click', filterCriticalStock);
+        if (zeroBtn) zeroBtn.addEventListener('click', filterZeroStock);
+        
+        document.getElementById('productCodeInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchProductCode(); });
+        document.getElementById('tagNameInput').addEventListener('keypress', e => { if (e.key === 'Enter') searchTag(); });
+        document.querySelectorAll('.mode-tab').forEach(tab => { tab.addEventListener('click', () => switchMode(tab.dataset.mode)); });
+        
+        loadFromLocalStorage();
+        loadAllData().then(() => {
+            loadStockHistoryFromFeishu();
+        });
+    });
+
     window.deleteRecord = deleteRecord;
 </script>
 </body>
